@@ -4,6 +4,5 @@
 
 > Observações:
 	Se caso for alterar os arquivos CSV, por favor deixar o cursor no começo da  última linha (a linha vazia). Pois cada nova entrada é adicionada considerando que o cursor está na primeira posição da linha.
-	
-	Não foram tratados casos onde se tenta fazer empréstimos com usuários ou livros inexistentes.
+
 
