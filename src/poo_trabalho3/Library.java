@@ -96,70 +96,95 @@ public class Library {
     }
 
 
-    public static User registerUser(String name, String type, boolean isFromCSV){
-        if (!isFromCSV){
-            FileWriter writer;
-            try {
-                writer = new FileWriter(USERS_CSV, true);
-                writer.append(name + "," + type + "\n");
-                writer.close();
-            } catch (IOException ex){
-                Logger.getLogger(Library.class.getName()).log(Level.SEVERE, null, ex);
+    public static void registerUser(String name, String type, boolean isFromCSV){
+        if (users.containsKey(name)){
+            System.err.println("\nEsse usuário já existe no sistema.\n");
+        } else {
+            if (!isFromCSV){
+                FileWriter writer;
+                try {
+                    writer = new FileWriter(USERS_CSV, true);
+                    writer.append(name + "," + type + "\n");
+                    writer.close();
+                } catch (IOException ex){
+                    Logger.getLogger(Library.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                System.out.println("\nOperação realizada com sucesso.\n");
+            }
+            switch (type){
+                case "estudante":
+                    users.put(name, new Student(name));
+                    break;
+                case "professor":
+                    users.put(name, new Professor(name));
+                    break;
+                case "comunidade":
+                    users.put(name, new CommunityMember(name));
+                    break;
             }
         }
-        switch (type){
-            case "estudante":
-                users.put(name, new Student(name));
-                break;
-            case "professor":
-                users.put(name, new Professor(name));
-                break;
-            case "comunidade":
-                users.put(name, new CommunityMember(name));
-                break;
-        }
-        return null;
     }
 
 
     public static void borrowBook(String username, String bookname, LocalDate date, boolean isFromCSV) throws FileNotFoundException, IOException{
-        User user = users.get(username);
+        if (users.containsKey(username) && books.containsKey(bookname)){
+            User user = users.get(username);
 
-        if (user.isBlocked(date) == false){
-            Loan loan = user.addLoan(bookname, date);
-            allLoans.add(loan);
-            if (!isFromCSV){ //se ainda não estiver registrado no arquivo CSV, ou seja, for entrada do usuário
-                FileWriter writer = new FileWriter(OPERATIONS_CSV, true);
-                writer.append(date.format(FORMATTER) + ",retirada," + username + "," + bookname + "\n");
-                writer.close();
-                validLoans.add(loan);
-                System.out.println("Operação realizada com sucesso.");
+            if (user.isBlocked(date) == false){
+                Loan loan = user.addLoan(bookname, date);
+                allLoans.add(loan);
+                if (!isFromCSV){ //se ainda não estiver registrado no arquivo CSV, ou seja, for entrada do usuário
+                    FileWriter writer = new FileWriter(OPERATIONS_CSV, true);
+                    writer.append(date.format(FORMATTER) + ",retirada," + username + "," + bookname + "\n");
+                    writer.close();
+                    validLoans.add(loan);
+                    System.out.println("\nOperação realizada com sucesso.\n");
+                }
             }
+        } else {
+            System.err.println("\nEssa pessoa e/ou livro não existe(m) no sistema.\n");
         }
+
     }
 
 
     public static void returnBook(String username, String bookname, LocalDate date){
-        User user = users.get(username);
-        Loan loan = user.getLoans().get(bookname);
-        if (!loan.hasBeenAlteredInTheFuture()){
-            loan.setReturnDate(date);
+        if (users.containsKey(username)){
+            User user = users.get(username);
+            if (user.getLoans().containsKey(bookname)){
+                Loan loan = user.getLoans().get(bookname);
+                if (!loan.hasBeenAlteredInTheFuture()){
+                    loan.setReturnDate(date);
+                }
+            } else {
+                System.err.println("\nEsse livro não existe ou não foi emprestado a esse usuário.");
+            }
+        } else {
+            System.err.println("\n Essa pessoa não existe no sistema.\n");
         }
+
     }
 
 
     public static void registerBook(String book, String type, boolean isFromCSV){
-        if (!isFromCSV){
-            FileWriter writer;
-            try {
-                writer = new FileWriter(BOOKS_CSV, true);
-                writer.append(book + "," + type + "\n");
-                writer.close();
-            } catch (IOException ex){
-                Logger.getLogger(Library.class.getName()).log(Level.SEVERE, null, ex);
+        if (books.containsKey(book)){
+            System.err.println("\nEsse livro já existe no sistema.\n");
+        } else {
+            if (!isFromCSV){
+                FileWriter writer;
+                try {
+                    writer = new FileWriter(BOOKS_CSV, true);
+                    writer.append(book + "," + type + "\n");
+                    writer.close();
+                } catch (IOException ex){
+                    Logger.getLogger(Library.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                System.out.println("\nOperação realizada com sucesso.\n");
             }
+            books.put(book, type);
+
         }
-        books.put(book, type);
+
     }
 
 
@@ -167,7 +192,9 @@ public class Library {
         System.out.println("====== Lista de usuários cadastrados ======");
         users.values().stream()
                 .sorted(Comparator.comparing(User::getName))
-                .forEach(u->{System.out.println(u);});
+                .forEach(u -> {
+                    System.out.println(u);
+                });
     }
 
 
@@ -175,7 +202,9 @@ public class Library {
         System.out.println("====== Lista de livros cadastrados ======");
         books.keySet().stream()
                 .sorted()
-                .forEach(b->{System.out.println("Livro: " + b + " | Tipo: " + books.get(b));});
+                .forEach(b -> {
+                    System.out.println("Livro: " + b + " | Tipo: " + books.get(b));
+                });
     }
 
 
@@ -184,8 +213,8 @@ public class Library {
         validLoans.stream()
                 .sorted(Comparator.comparing(Loan::getLoanDate))
                 .forEach(l -> {
-            System.out.println(l);
-        });
+                    System.out.println(l);
+                });
         System.out.println("===========================================================================================================\n");
     }
 
@@ -267,7 +296,6 @@ public class Library {
                 System.out.println("Insira o tipo do livro(\"texto\" ou \"geral\"): ");
                 type = s.nextLine();
                 registerBook(book, type, false);
-                System.out.println("Operação realizada com sucesso.");
                 mainMenu();
                 break;
             case 4:
@@ -277,20 +305,25 @@ public class Library {
                 System.out.println("Insira o tipo do usuário(\"estudante\", \"professor\" ou \"comunidade\"): ");
                 type = s.nextLine();
                 registerUser(username, type, false);
-                System.out.println("Operação realizada com sucesso.");
                 mainMenu();
                 break;
             case 5:
                 System.out.println("==== STATUS DO USUÁRIO ====");
                 System.out.println("Insira o nome do usuário:");
                 username = s.nextLine();
-                User user = users.get(username);
-                System.out.println(user);
-                user.getLoans().values().stream()
-                        .filter(l -> (!l.getLoanDate().isAfter(today)))
-                        .forEach(l -> {
-                            System.out.println(l);
-                        });
+                if (users.containsKey(username)){
+                    User user = users.get(username);
+                    System.out.println("\n"+user);
+                    System.out.println("==== Empréstimos feitos até "+today.format(FORMATTER)+" ====");
+                    user.getLoans().values().stream()
+                            .filter(l -> (!l.getLoanDate().isAfter(today)))
+                            .forEach(l -> {
+                                System.out.println(l);
+                            });
+                } else {
+                    System.err.println("\nEsse usuário não existe no sistema.\n");
+                }
+
                 mainMenu();
                 break;
             case 6:
@@ -309,7 +342,7 @@ public class Library {
                 System.out.println("==== NOVA DATA ====");
                 System.out.println("Digite uma data no formato \"dd/mm/aaaa\"");
                 setDate(s.nextLine());
-                System.out.println("Operação realizada com sucesso.");
+                System.out.println("\nOperação realizada com sucesso.\n");
                 start();
                 mainMenu();
                 break;
