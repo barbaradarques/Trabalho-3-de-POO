@@ -1,7 +1,9 @@
 ======== Como utilizar ======== 
-1) Ao rodar, ir· aparecer um menu com opÁıes numeradas.
-2) Digite o n˙mero da opÁ„o desejada e siga as instruÁıes dadas em tela.
+1) Ao rodar, ir√° aparecer um menu com op√ß√µes numeradas.
+2) Digite o n√∫mero da op√ß√£o desejada e siga as instru√ß√µes dadas em tela.
 
-> ObservaÁıes:
-	Se caso for alterar os arquivos CSV, por favor deixar o cursor no comeÁo da  ˙ltima linha (a linha vazia). Pois cada nova entrada È adicionada considerando que o cursor est· na primeira posiÁ„o da linha.
+> Observa√ß√µes:
+	Se caso for alterar os arquivos CSV, por favor deixar o cursor no come√ßo da  √∫ltima linha (a linha vazia). Pois cada nova entrada √© adicionada considerando que o cursor est√° na primeira posi√ß√£o da linha.
+	
+	N√£o foram tratados casos onde se tenta fazer empr√©stimos com usu√°rios ou livros inexistentes.
 
