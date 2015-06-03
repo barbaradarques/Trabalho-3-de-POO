@@ -1,4 +1,4 @@
-# Trabalho-3-de-POO
+# Trabalho 3 de POO (Biblioteca)
 
 **Como utilizar:**
 
